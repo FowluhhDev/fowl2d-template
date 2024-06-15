@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Template</title>
+</head>
+<style>
+    #app {
+        border: 3px solid black;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        position: fixed;
+
+        image-rendering: pixelated;
+    }
+</style>
+<body>
+    <canvas id="app" width="640" height="480" oncontextmenu="return false;"></canvas>
+    <script src="./src/main.js" type="module"></script>
+</body>
+</html>
