@@ -1,21 +1,18 @@
-import { GameState, colors, drawImage, setScene } from "./fowljs.js"
+import { BaseState, colors, startGame } from "./fowl.js";
 
-class Game extends GameState {
+class GameState extends BaseState {
     constructor() {
-        super();
+        super()
     }
 
-    init() {
-        this.bgColor = colors.blue;
+    create() {
+        this.bgColor = colors.fowl;
     }
 
-    draw() {
-        
-    }
-
-    update() {
+    update(dt) {
 
     }
 }
 
-setScene(new Game());
+
+startGame(new GameState());
