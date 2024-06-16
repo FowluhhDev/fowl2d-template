@@ -117,6 +117,12 @@ export class GameState {
             "8":          {down: false},
             "9":          {down: false},
             "0":          {down: false},
+            ",":          {down: false},
+            ".":          {down: false},
+            "/":          {down: false},
+            "[":          {down: false},
+            "]":          {down: false},
+            "-":          {down: false},
         };
 
         this.mouseController = {
@@ -228,10 +234,10 @@ class SceneManager {
     }
 }
 
-export function drawImage(src,x,y,ctx) {
+export function drawImage(src,x,y,ctx,scale=1) {
     const img = new Image();
     img.src = src;
-    ctx.drawImage(img, x, y);
+    ctx.drawImage(img, x, y, img.width*scale, img.height * scale);
 }
 
 // tilemap stuff

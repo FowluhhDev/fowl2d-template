@@ -1,4 +1,4 @@
-import { GameState, colors, setScene } from "./fowljs.js"
+import { GameState, colors, drawImage, setScene } from "./fowljs.js"
 
 class Game extends GameState {
     constructor() {
@@ -10,7 +10,7 @@ class Game extends GameState {
     }
 
     draw() {
-
+        
     }
 
     update() {
