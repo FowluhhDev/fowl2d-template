@@ -42,6 +42,25 @@ var controller = {
     "b":          { down: false },
     "n":          { down: false },
     "m":          { down: false },
+    "1":          { down: false },
+    "2":          { down: false },
+    "3":          { down: false },
+    "4":          { down: false },
+    "5":          { down: false },
+    "6":          { down: false },
+    "7":          { down: false },
+    "8":          { down: false },
+    "9":          { down: false },
+    "0":          { down: false },
+    ",":          { down: false },
+    ".":          { down: false },
+    "/":          { down: false },
+    ";":          { down: false },
+    "'":          { down: false },
+    "[":          { down: false },
+    "]":          { down: false },
+    "-":          { down: false },
+    "=":          { down: false },
 }
 
 
@@ -180,14 +199,21 @@ export class TileMap {
         this.tilePaths.push(path);
     }
 
-    drawMap(ctx) {
+    draw() {
+        var tileGroup = new Group();
         for (let y = 0; y < this.data.length; y++) {
             const row = this.data[y];
             for (let x = 0; x < row.length; x++) {
                 const tile = this.data[y][x];
-                drawImage(this.tilePaths[tile], this.offsetX+(x*this.tilesize), this.offsetY+(y*this.tilesize), ctx);
+                var tileImage = new Sprite(this.tilePaths[tile], this.offsetX+(x*this.tilesize), this.offsetY+(y*this.tilesize));
+                tileGroup.add(tileImage);
             }
         }
+        tileGroup.draw();
+    }
+
+    getCollision(obj1, tilex, tiley) {
+        return getCollision(obj1, new Rect(tilex*this.tilesize+this.offsetX, tiley*this.tilesize+this.offsetY, this.tilesize, this.tilesize));
     }
 }
 
@@ -396,7 +422,7 @@ function gameLoop() {
 
     if (delta > interval) {
         then = now - (delta % interval);
-        
+
         manager.scene.preUpdate(delta);
     }
 
