@@ -14,7 +14,7 @@ class GameState extends BaseState {
     }
 
     update(dt) {
-
+    
     }
 }
 
