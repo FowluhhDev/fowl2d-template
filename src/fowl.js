@@ -5,6 +5,8 @@
 var canvas = document.querySelector("#app");
 var ctx = canvas.getContext("2d");
 
+window.ctx = ctx;
+
 
 // Key list for input
 var controller = {
@@ -16,6 +18,7 @@ var controller = {
     "Shift":      { down: false },
     "Control":    { down: false },
     "Escape":     { down: false },
+    " ":          { down: false },
     "q":          { down: false },
     "w":          { down: false },
     "e":          { down: false },
@@ -67,6 +70,19 @@ var controller = {
 // Basis for a game state
 export class BaseState {
     constructor() {
+        this.prePreload();
+    }
+
+    prePreload() {
+        this.preloads = {};
+        this.preload();
+    }
+
+    preload() {
+        
+    }
+
+    finishPreload() {
         this.preCreate();
     }
 
@@ -97,21 +113,34 @@ export class BaseState {
         
     }
 
-    preUpdate() {
+    preUpdate(dt) {
         this.bg.col = this.bgColor;
-        for (let o = 0; o < this.objects.length; o++) {
-            this.objects[o].draw();
+        for (let key in this.objects) {
+            this.objects[key].draw();
         }
-        this.update();
+        this.update(dt);
     }
 
-    update() {
+    update(dt) {
 
     }
 
-    add(o, e = () => {}) {
+    add(o, name, e = () => {}) {
         e();
-        this.objects.push(o);
+        this.objects[name] = o;
+    }
+
+    remove(name, e = () => {}) {
+        e();
+        delete this.objects[name];
+    }
+
+    addPreload(name, data) {
+        this.preloads[name] = data
+    }
+
+    getPreload(name) {
+        return this.preloads[name];
     }
 }
 
@@ -130,6 +159,10 @@ class StateManager {
 
 var manager = new StateManager();
 
+export function getManager() {
+    return manager;
+}
+
 // For initializing the game
 export function startGame(default_scene) {
     manager.switch(default_scene);
@@ -143,6 +176,13 @@ export function getKeys(keys) {
 
 
 // Getting collisions
+export var collisionSides = {
+    TOP:     0,
+    BOTTOM:  1,
+    LEFT:    2,
+    RIGHT:   3,
+}
+
 export function getCollision(obj1, obj2) {
     if (
         obj1.x < obj2.x + obj2.w &&
@@ -153,6 +193,47 @@ export function getCollision(obj1, obj2) {
         return true;
     } else {
         return false;
+    }
+}
+
+export function getCollisionSide(obj1, obj2) {
+    if (getCollision(obj1, obj2)) {
+        var obj1HalfW = obj1.w/2
+        var obj1HalfH = obj1.h/2
+        var obj2HalfW = obj2.w/2
+        var obj2HalfH = obj2.h/2
+        var obj1CenterX = obj1.x + obj1.w/2
+        var obj1CenterY = obj1.y + obj1.h/2
+        var obj2CenterX = obj2.x + obj2.w/2
+        var obj2CenterY = obj2.y + obj2.h/2
+    
+        var diffX = obj1CenterX - obj2CenterX
+        var diffY = obj1CenterY - obj2CenterY
+    
+        var minXDist = obj1HalfW + obj2HalfW
+        var minYDist = obj1HalfH + obj2HalfH
+    
+        var depthX = diffX > 0 ? minXDist - diffX : -minXDist - diffX
+        var depthY = diffY > 0 ? minYDist - diffY : -minYDist - diffY
+    
+        if(depthX != 0 && depthY != 0){
+          if(Math.abs(depthX) < Math.abs(depthY)){
+            if(depthX > 0){
+                return collisionSides.LEFT;
+            }
+            else{
+                return collisionSides.RIGHT;
+            }
+          }
+          else{
+            if(depthY > 0){
+                return collisionSides.BOTTOM;
+            }
+            else{
+                return collisionSides.TOP;
+            }
+          }
+        }
     }
 }
 
@@ -168,7 +249,10 @@ export var colors = {
     orange:        "#FF7F50",
     yorange:       "#FFBF00",
     yellow:        "#FFDF00",
+    gold:          "#E8E84A",
+    lemon:         "#CCCC77",
     yelleen:       "#9DD62B",
+    lime:          "#77CC77",
     green:         "#9FE2BF",
     darkgreen:     "#22AB63",
     teal:          "#40E0D0",
@@ -176,14 +260,13 @@ export var colors = {
     fowl:          "#0085FF",
     blue:          "#6495ED",
     deepblue:      "#15158A",
+    dlog:          "#4A2AE8",
     purple:        "#8128D4",
     fushcia:       "#CCCCFF",
     hotpink:       "#DB2162",
-    lime:          "#77CC77",
-    lemon:         "#CCCC77",
-    rgblue:        "#0000FF",
-    rgreenb:       "#00FF00",
     redgb:         "#FF0000",
+    rgreenb:       "#00FF00",
+    rgblue:        "#0000FF",
 }
 
 export class TileMap {
@@ -237,33 +320,72 @@ export class LineShape {
 
 export class Sprite {
     constructor(src,x,y,scale=1) {
-        this.x = x;
-        this.y = y;
         this.src = src;
         this.scale = scale;
+        this.img = new Image();
+        this.x = x;
+        this.y = y;
     }
 
     draw() {
-        const img = new Image();
-        img.src = this.src;
-        ctx.drawImage(img, this.x, this.y, img.width*this.scale, img.height*this.scale);
+        this.img.src = this.src;
+        this.w = this.img.width*this.scale;
+        this.h = this.img.height*this.scale;
+        ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
+    }
+}
+
+export class SlicedSprite {
+    constructor(src,x,y,sx,sy,sw,sh,scale=1) {
+        this.src = src;
+        this.scale = scale;
+        this.img = new Image();
+        this.x = x;
+        this.y = y;
+        this.sx = sx;
+        this.sy = sy;
+        this.sw = sw;
+        this.sh = sh;
+    }
+
+    draw() {
+        this.img.src = this.src;
+        this.w = this.img.width*this.scale;
+        this.h = this.img.height*this.scale;
+        ctx.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.x, this.y, this.w, this.h);
     }
 }
 
 export class Group {
-    constructor() {
-        this.objects = [];
+    constructor(x = 0, y = 0) {
+        this.objects = {};
+
+        this.x = x;
+        this.y = y;
     }
 
     draw() {
-        for (let o = 0; o < this.objects.length; o++) {
-            this.objects[o].draw();
+        for (let key in this.objects) {
+            this.objects[key].x += this.x;
+            this.objects[key].y += this.y;
+            this.objects[key].draw();
+            this.objects[key].x -= this.x;
+            this.objects[key].y -= this.y;
         }
     }
 
-    add(o, e = () => {}) {
+    add(o, name, e = () => {}) {
         e();
-        this.objects.push(o);
+        this.objects[name] = o;
+    }
+
+    remove(name, e = () => {}) {
+        e();
+        delete this.objects[name];
+    }
+
+    get(name) {
+        return this.objects[name];
     }
 }
 
@@ -381,7 +503,7 @@ export class Music {
 
     play() {
         this.audio = new Audio(this.src);
-        audio.play();
+        this.audio.play();
     }
 
     stop() {

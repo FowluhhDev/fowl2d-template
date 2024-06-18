@@ -2,7 +2,11 @@ import { BaseState, colors, startGame } from "./fowl.js";
 
 class GameState extends BaseState {
     constructor() {
-        super()
+        super();
+    }
+
+    preload() {
+        this.finishPreload();
     }
 
     create() {
@@ -10,9 +14,8 @@ class GameState extends BaseState {
     }
 
     update(dt) {
-        
+
     }
 }
-
 
 startGame(new GameState());
