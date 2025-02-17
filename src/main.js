@@ -1,6 +1,6 @@
-import { BaseState, colors, startGame } from "./fowl.js";
+import { State, colors, startGame } from "../lib/fowl.js";
 
-class GameState extends BaseState {
+class GameState extends State {
     constructor() {
         super();
     }
@@ -10,11 +10,11 @@ class GameState extends BaseState {
     }
 
     create() {
-        this.bgColor = colors.fowl;
+        this.bgColor = colors[1].fowl;
     }
 
     update(dt) {
-    
+        
     }
 }
 
